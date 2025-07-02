@@ -1,33 +1,24 @@
-const http = require('http');
-
-//const server = require('./handling');
-
 const express = require('express');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+const reciperouter = require('./router/routing');
+const { connected } = require('process');
+const { error } = require('console');
 
 const app = express();
+app.use(express.json());
 
-app.get("/", (req, res, next) => {
-  console.log("This is home page", req.url, req.method);
-  res.send("<h1>Harsh pandey</h1>");
+mongoose.connect(process.env.MONGO_url)
+.then(()=> console.log('mongo is connected'))
+.catch((error)=> console.log("Db error",error));
+
+app.get('/',(req,res)=> {
+  res.send('recipe api is running');
 
 });
-app.get("/contact-us", (req, res, next) => {
-  console.log("This is second page", req.url, req.method);
-  res.send(`
-    <h1>Submit your details</h1>
-    <form action="/contact-us" method="POST">
-      <input type="text" name="name" placeholder="Enter your name"/>
-      <input type="email" name="email" placeholder="Enter your email"/>
-      <input type="Submit"/>
-    </form>
-  `);
-});
-app.post("/contact-us",(req, res , next)=> {
-  console.log("thank you ",req.url,req.method);
-  res.send("<h1>We will contact us early </h1>");
-});
-
-const PORT = 3001;
+app.use('/', reciperouter);
+const PORT = 3002;
 app.listen(PORT, () => {
-  console.log(`Server running on address http://localhost:${PORT}`);
+  console.log(`server is running on a address http://localhost:${PORT}`);
 });
